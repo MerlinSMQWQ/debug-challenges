@@ -118,7 +118,7 @@ kill -USR1 PID
 在 macOS 的终端中执行：
 
 ```sh
-cd '/Users/a1234/WorkingSpace/Debug 挑战赛/challenges/2026-10-09'
+cd '/Users/a1234/WorkingSpace/debug-challenges/challenges/2026-10-09'
 python3 --version
 python3 lab.py --help
 python3 lab.py reset

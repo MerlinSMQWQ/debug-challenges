@@ -1,0 +1,21 @@
+{
+  "platform": "macOS-27.0.1-arm64-arm-64bit",
+  "macOS": "27.0.1",
+  "architecture": "arm64",
+  "python": "3.9.6 (default, Aug 25 2026, 21:26:21) \n[Clang 21.0.0 (clang-2100.3.34.2)]",
+  "python_executable": "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+  "dependencies": "Python standard library only",
+  "contest_status": "not_started",
+  "contest_started_at": null,
+  "submission": null,
+  "score": null,
+  "original_sha256": {
+    "job.py": "a45023161b9fe4006b787ceb2ca106502482fae95c65ba049f8d9dc45e62cb2c",
+    "exporter.py": "4e197e0072e2333ac596f06d99a2f8d086c6dc15d98564c6e0905118b9b58164",
+    "lab.py": "dfe9b5cd2c5f67127f6391d07ea912cdcd42c8b8481e863afa58963187b1ad1c",
+    "verify.py": "922c6ad2b2158b9a6c403c7b97b384cbfe7ec8e2456858b0b0e763cdeb123468",
+    "config.json": "d94e5cadbd391e33957dfdb886f73049fb924ca998cd7fd7901c3a746fa7d214",
+    "data/small.csv": "670473b92cf0073fe6abacb4e875aec229ee89fdbb54e786555d49a06778b7cc",
+    "data/daily.csv": "db7dfb1fcf363924d310c01f0b3479b18eb89adfa5e43e2e46d50e9c2694060b"
+  }
+}

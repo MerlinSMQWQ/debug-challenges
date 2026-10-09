@@ -1,0 +1,2 @@
+{"event": "job_started", "input": "/Users/a1234/WorkingSpace/Debug \u6311\u6218\u8d5b/challenges/2026-10-09/data/daily.csv", "output_dir": "/Users/a1234/WorkingSpace/Debug \u6311\u6218\u8d5b/challenges/2026-10-09/runtime/daily"}
+{"event": "exporter_started", "pid": 35260}

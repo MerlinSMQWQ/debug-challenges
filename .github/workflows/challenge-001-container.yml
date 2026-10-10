@@ -21,14 +21,14 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ${{ runner.temp }}/test-000-standalone/debug-challenge-2026-10-09/challenges/2026-10-09
+        working-directory: .ci-standalone/debug-challenge-2026-10-09/challenges/2026-10-09
     steps:
       - uses: actions/checkout@v7
       - name: Unpack and verify the public challenge package
         working-directory: .
         run: |
           node tools/build_challenge_packages.mjs --output "$RUNNER_TEMP/test-000-zips"
-          python3 tools/verify_challenge_packages.py --directory "$RUNNER_TEMP/test-000-zips" --unpack "$RUNNER_TEMP/test-000-standalone"
+          python3 tools/verify_challenge_packages.py --directory "$RUNNER_TEMP/test-000-zips" --unpack "$GITHUB_WORKSPACE/.ci-standalone"
       - name: Build the Linux challenge image
         run: docker compose build challenge
       - name: Validate reproduction, stack snapshots and cleanup

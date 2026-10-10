@@ -24,14 +24,14 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ${{ runner.temp }}/official-001-standalone/debug-challenge-2026-10-10/challenges/2026-10-10
+        working-directory: .ci-standalone/debug-challenge-2026-10-10/challenges/2026-10-10
     steps:
       - uses: actions/checkout@v7
       - name: Unpack and verify the public challenge package
         working-directory: .
         run: |
           node tools/build_challenge_packages.mjs --output "$RUNNER_TEMP/official-001-zips"
-          python3 tools/verify_challenge_packages.py --directory "$RUNNER_TEMP/official-001-zips" --unpack "$RUNNER_TEMP/official-001-standalone"
+          python3 tools/verify_challenge_packages.py --directory "$RUNNER_TEMP/official-001-zips" --unpack "$GITHUB_WORKSPACE/.ci-standalone"
       - name: Match the Linux checkout owner
         run: printf 'CHALLENGE_UID=%s\nCHALLENGE_GID=%s\n' "$(id -u)" "$(id -g)" > .env
       - name: Build the standard incident environment

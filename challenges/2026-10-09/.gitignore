@@ -1,2 +1,4 @@
-runtime/
+/var/runs/
+/notes/
 __pycache__/
+*.py[cod]

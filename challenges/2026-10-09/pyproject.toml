@@ -1,0 +1,6 @@
+[project]
+name = "settlement-export"
+version = "0.1.0"
+description = "Local invoice settlement export job"
+requires-python = ">=3.9"
+dependencies = []

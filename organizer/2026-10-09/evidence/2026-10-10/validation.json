@@ -1,0 +1,397 @@
+{
+  "date": "2026-10-10",
+  "environment": {
+    "platform": "macOS-27.0.1-arm64-arm-64bit",
+    "python": "3.9.6 (default, Aug 25 2026, 21:26:21) \n[Clang 21.0.0 (clang-2100.3.34.2)]",
+    "python_executable": "/Applications/Xcode.app/Contents/Developer/usr/bin/python3"
+  },
+  "contest_status": "not_started",
+  "records": [
+    {
+      "check": "runner help",
+      "command": [
+        "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+        "/private/tmp/debug-001-refactor-20261010.oHlrra/challenges/2026-10-09/scripts/run_export.py",
+        "--help"
+      ],
+      "exit_code": 0,
+      "expected_exit": 0,
+      "elapsed_seconds": 0.032,
+      "stdout": "usage: run_export.py [-h] {reset,run} ...\n\n运行结算导出、保存记录或清理运行产物\n\npositional arguments:\n  {reset,run}\n    reset      清空全部运行产物；保留源码修改\n    run        运行一个参考批次\n\noptional arguments:\n  -h, --help   show this help message and exit\n",
+      "stderr": ""
+    },
+    {
+      "check": "runner run help",
+      "command": [
+        "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+        "/private/tmp/debug-001-refactor-20261010.oHlrra/challenges/2026-10-09/scripts/run_export.py",
+        "run",
+        "--help"
+      ],
+      "exit_code": 0,
+      "expected_exit": 0,
+      "elapsed_seconds": 0.029,
+      "stdout": "usage: run_export.py run [-h] [--timeout TIMEOUT] {small,daily}\n\npositional arguments:\n  {small,daily}\n\noptional arguments:\n  -h, --help         show this help message and exit\n  --timeout TIMEOUT  运行保护时限（秒），默认 8；0 表示等待到手动 Ctrl-C\n",
+      "stderr": ""
+    },
+    {
+      "check": "job module help",
+      "command": [
+        "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+        "-m",
+        "settlement_export.job",
+        "--help"
+      ],
+      "exit_code": 0,
+      "expected_exit": 0,
+      "elapsed_seconds": 0.036,
+      "stdout": "usage: job.py [-h] --input INPUT --config CONFIG --output-dir OUTPUT_DIR\n\n执行一次门店发票结算导出\n\noptional arguments:\n  -h, --help            show this help message and exit\n  --input INPUT\n  --config CONFIG\n  --output-dir OUTPUT_DIR\n",
+      "stderr": ""
+    },
+    {
+      "check": "exporter module help",
+      "command": [
+        "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+        "-m",
+        "settlement_export.exporter",
+        "--help"
+      ],
+      "exit_code": 0,
+      "expected_exit": 0,
+      "elapsed_seconds": 0.033,
+      "stdout": "usage: exporter.py [-h] --input INPUT --config CONFIG --output-dir OUTPUT_DIR\n\n将发票转换为结算记录\n\noptional arguments:\n  -h, --help            show this help message and exit\n  --input INPUT\n  --config CONFIG\n  --output-dir OUTPUT_DIR\n",
+      "stderr": ""
+    },
+    {
+      "check": "reset creates clean var/runs",
+      "command": [
+        "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+        "/private/tmp/debug-001-refactor-20261010.oHlrra/challenges/2026-10-09/scripts/run_export.py",
+        "reset"
+      ],
+      "exit_code": 0,
+      "expected_exit": 0,
+      "elapsed_seconds": 0.029,
+      "stdout": "已清空 var/runs/。源码修改、配置、输入和初始事故记录均已保留。\n",
+      "stderr": ""
+    },
+    {
+      "check": "faulty acceptance",
+      "command": [
+        "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ],
+      "exit_code": 1,
+      "expected_exit": 1,
+      "elapsed_seconds": 8.242,
+      "stdout": "",
+      "stderr": "test_daily_batch (test_acceptance.SettlementAcceptance)\n日结批次符合完整业务契约。 ... FAIL\ntest_small_batch (test_acceptance.SettlementAcceptance)\n样例批次符合完整业务契约。 ... ok\n\n======================================================================\nFAIL: test_daily_batch (test_acceptance.SettlementAcceptance)\n日结批次符合完整业务契约。\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/private/tmp/debug-001-refactor-20261010.oHlrra/challenges/2026-10-09/tests/test_acceptance.py\", line 86, in test_daily_batch\n    self.check_batch(\"daily\")\n  File \"/private/tmp/debug-001-refactor-20261010.oHlrra/challenges/2026-10-09/tests/test_acceptance.py\", line 39, in check_batch\n    self.assertEqual(result.returncode, 0,\nAssertionError: 124 != 0 : 任务未正常完成，请查看 var/runs/daily/。\n任务已启动，PID=84971；运行记录：var/runs/daily\n任务在 8.0 秒内未结束，运行保护将停止本次任务。\n{\"status\": \"timeout\", \"exit_code\": 124, \"elapsed_seconds\": 8.009}\n\n\n----------------------------------------------------------------------\nRan 2 tests in 8.185s\n\nFAILED (failures=1)\n"
+    },
+    {
+      "check": "initial evidence source",
+      "source": "faulty acceptance daily run",
+      "files": {
+        "job.log": "bc1eb651ec855a554ab35cb208f40624d82d5eebc31d8a0040a5e19aa047d584",
+        "launcher.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "observation.json": "92e6658b3f4f74a41f5082f3162098bb7a92f7208be39a343a2b18585103f3b3"
+      }
+    },
+    {
+      "check": "same batch rerun refuses overwrite",
+      "command": [
+        "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+        "/private/tmp/debug-001-refactor-20261010.oHlrra/challenges/2026-10-09/scripts/run_export.py",
+        "run",
+        "daily"
+      ],
+      "exit_code": 1,
+      "expected_exit": 1,
+      "elapsed_seconds": 0.028,
+      "stdout": "",
+      "stderr": "本批次已有运行记录。请先保存证据，再执行 reset 后重跑。\n"
+    },
+    {
+      "check": "acceptance refuses nonempty runs",
+      "command": [
+        "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ],
+      "exit_code": 1,
+      "expected_exit": 1,
+      "elapsed_seconds": 0.036,
+      "stdout": "",
+      "stderr": "ERROR\n\n======================================================================\nERROR: setUpClass (test_acceptance.SettlementAcceptance)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/private/tmp/debug-001-refactor-20261010.oHlrra/challenges/2026-10-09/tests/test_acceptance.py\", line 28, in setUpClass\n    raise AssertionError(\nAssertionError: 验收需要空的 var/runs/。先保存证据并结束活动任务，再执行 python3 scripts/run_export.py reset。\n\n----------------------------------------------------------------------\nRan 0 tests in 0.001s\n\nFAILED (errors=1)\n"
+    },
+    {
+      "check": "reset before live observation",
+      "command": [
+        "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+        "/private/tmp/debug-001-refactor-20261010.oHlrra/challenges/2026-10-09/scripts/run_export.py",
+        "reset"
+      ],
+      "exit_code": 0,
+      "expected_exit": 0,
+      "elapsed_seconds": 0.028,
+      "stdout": "已清空 var/runs/。源码修改、配置、输入和初始事故记录均已保留。\n",
+      "stderr": ""
+    },
+    {
+      "check": "actual process observation",
+      "command": [
+        "ps",
+        "-p",
+        "84987,84988",
+        "-o",
+        "pid,ppid,state,%cpu,rss,command"
+      ],
+      "exit_code": 0,
+      "expected_exit": 0,
+      "elapsed_seconds": 0.004,
+      "stdout": "  PID  PPID STAT  %CPU    RSS COMMAND\n84987 84986 Ss     2.7  12304 /Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/MacOS/Python -m settlement_export.job --input data/batches/daily.csv --config config/settlement.json --output-dir var/runs/daily\n84988 84987 S      3.0  11984 /Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/MacOS/Python -u -m settlement_export.exporter --input data/batches/daily.csv --config config/settlement.json --output-dir var/runs/daily\n",
+      "stderr": ""
+    },
+    {
+      "check": "reset refuses live job",
+      "command": [
+        "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+        "/private/tmp/debug-001-refactor-20261010.oHlrra/challenges/2026-10-09/scripts/run_export.py",
+        "reset"
+      ],
+      "exit_code": 1,
+      "expected_exit": 1,
+      "elapsed_seconds": 0.031,
+      "stdout": "",
+      "stderr": "任务 PID=84987 仍在运行。请先在原终端按 Ctrl-C 结束它，再执行 reset。\n"
+    },
+    {
+      "check": "second run refuses live job",
+      "command": [
+        "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+        "/private/tmp/debug-001-refactor-20261010.oHlrra/challenges/2026-10-09/scripts/run_export.py",
+        "run",
+        "small"
+      ],
+      "exit_code": 1,
+      "expected_exit": 1,
+      "elapsed_seconds": 0.033,
+      "stdout": "",
+      "stderr": "发现 var/runs/active.json。先在原终端结束任务，再执行 reset；若上次运行异常退出，也请先确认该文件中的 PID 已退出。\n"
+    },
+    {
+      "check": "job.stack",
+      "text": "Current thread 0x00000001efdbbf80 (most recent call first):\n  File \"/private/tmp/debug-001-refactor-20261010.oHlrra/challenges/2026-10-09/settlement_export/job.py\", line 34 in main\n  File \"/private/tmp/debug-001-refactor-20261010.oHlrra/challenges/2026-10-09/settlement_export/job.py\", line 51 in <module>\n  File \"/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/runpy.py\", line 87 in _run_code\n  File \"/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/runpy.py\", line 197 in _run_module_as_main\n"
+    },
+    {
+      "check": "exporter.stack",
+      "text": "Current thread 0x00000001efdbbf80 (most recent call first):\n  File \"/private/tmp/debug-001-refactor-20261010.oHlrra/challenges/2026-10-09/settlement_export/exporter.py\", line 31 in main\n  File \"/private/tmp/debug-001-refactor-20261010.oHlrra/challenges/2026-10-09/settlement_export/exporter.py\", line 54 in <module>\n  File \"/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/runpy.py\", line 87 in _run_code\n  File \"/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/runpy.py\", line 197 in _run_module_as_main\n"
+    },
+    {
+      "check": "Ctrl-C cleanup",
+      "exit_code": 130,
+      "stdout": "任务已启动，PID=84987；运行记录：var/runs/daily\n{\"status\": \"interrupted\", \"exit_code\": 130, \"elapsed_seconds\": 0.814}\n",
+      "stderr": ""
+    },
+    {
+      "check": "both business processes exited",
+      "stdout": ""
+    },
+    {
+      "check": "reset after interruption",
+      "command": [
+        "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+        "/private/tmp/debug-001-refactor-20261010.oHlrra/challenges/2026-10-09/scripts/run_export.py",
+        "reset"
+      ],
+      "exit_code": 0,
+      "expected_exit": 0,
+      "elapsed_seconds": 0.041,
+      "stdout": "已清空 var/runs/。源码修改、配置、输入和初始事故记录均已保留。\n",
+      "stderr": ""
+    },
+    {
+      "check": "direct job module with relative paths",
+      "command": [
+        "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+        "-m",
+        "settlement_export.job",
+        "--input",
+        "data/samples/small.csv",
+        "--config",
+        "config/settlement.json",
+        "--output-dir",
+        "notes/manual-run"
+      ],
+      "exit_code": 0,
+      "expected_exit": 0,
+      "elapsed_seconds": 0.067,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "check": "normal baseline acceptance",
+      "command": [
+        "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ],
+      "exit_code": 0,
+      "expected_exit": 0,
+      "elapsed_seconds": 0.327,
+      "stdout": "",
+      "stderr": "test_daily_batch (test_acceptance.SettlementAcceptance)\n日结批次符合完整业务契约。 ... ok\ntest_small_batch (test_acceptance.SettlementAcceptance)\n样例批次符合完整业务契约。 ... ok\n\n----------------------------------------------------------------------\nRan 2 tests in 0.293s\n\nOK\n"
+    },
+    {
+      "check": "normal output small",
+      "summary": {
+        "input_count": 12,
+        "exported_count": 9,
+        "rejected_count": 3,
+        "totals_cents": {
+          "CNY": 744,
+          "USD": 855,
+          "EUR": 966
+        }
+      },
+      "audit_bytes": 2541,
+      "export_sha256": "99332d4136dced5289c02c8d2b4edf7d63d405b1157c30517c93c15cf9d92ad1"
+    },
+    {
+      "check": "normal output daily",
+      "summary": {
+        "input_count": 2400,
+        "exported_count": 1800,
+        "rejected_count": 600,
+        "totals_cents": {
+          "CNY": 26655600,
+          "USD": 26677800,
+          "EUR": 26700000
+        }
+      },
+      "audit_bytes": 509327,
+      "export_sha256": "6e68adef55b65e5008bf1380faa9ee4891f376b4298f9d2b8165492c51aafe26"
+    },
+    {
+      "check": "reset before audit-loss variant",
+      "command": [
+        "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+        "/private/tmp/debug-001-refactor-20261010.oHlrra/challenges/2026-10-09/scripts/run_export.py",
+        "reset"
+      ],
+      "exit_code": 0,
+      "expected_exit": 0,
+      "elapsed_seconds": 0.027,
+      "stdout": "已清空 var/runs/。源码修改、配置、输入和初始事故记录均已保留。\n",
+      "stderr": ""
+    },
+    {
+      "check": "acceptance rejects missing audit",
+      "command": [
+        "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ],
+      "exit_code": 1,
+      "expected_exit": 1,
+      "elapsed_seconds": 0.402,
+      "stdout": "",
+      "stderr": "test_daily_batch (test_acceptance.SettlementAcceptance)\n日结批次符合完整业务契约。 ... FAIL\ntest_small_batch (test_acceptance.SettlementAcceptance)\n样例批次符合完整业务契约。 ... FAIL\n\n======================================================================\nFAIL: test_daily_batch (test_acceptance.SettlementAcceptance)\n日结批次符合完整业务契约。\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/private/tmp/debug-001-refactor-20261010.oHlrra/challenges/2026-10-09/tests/test_acceptance.py\", line 86, in test_daily_batch\n    self.check_batch(\"daily\")\n  File \"/private/tmp/debug-001-refactor-20261010.oHlrra/challenges/2026-10-09/tests/test_acceptance.py\", line 76, in check_batch\n    self.assertEqual(audited, rejected, \"拒绝审计必须包含每条完整原行\")\nAssertionError: Lists differ: [] != [{'invoice_id': 'INV-000004', 'account': '[471480 chars]g.'}]\n\nSecond list contains 600 additional elements.\nFirst extra element 0:\n{'invoice_id': 'INV-000004', 'account': 'branch-03', 'currency': 'HKD', 'cents': '211', 'note': 'Submitted by branch kiosk; attachment reference pending. Submitted by branch kiosk; attachment reference pending. Submitted by branch kiosk; attachment reference pending. Submitted by branch kiosk; attachment reference pending. Submitted by branch kiosk; attachment reference pending. Submitted by branch kiosk; attachment reference pending. Submitted by branch kiosk; attachment reference pending. Submitted by branch kiosk; attachment reference pending. Submitted by branch kiosk; attachment reference pending. Submitted by branch kiosk; attachment reference pending. Submitted by branch kiosk; attachment reference pending. Submitted by branch kiosk; attachment reference pending.'}\n\nDiff is 572932 characters long. Set self.maxDiff to None to see it. : 拒绝审计必须包含每条完整原行\n\n======================================================================\nFAIL: test_small_batch (test_acceptance.SettlementAcceptance)\n样例批次符合完整业务契约。\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/private/tmp/debug-001-refactor-20261010.oHlrra/challenges/2026-10-09/tests/test_acceptance.py\", line 82, in test_small_batch\n    self.check_batch(\"small\")\n  File \"/private/tmp/debug-001-refactor-20261010.oHlrra/challenges/2026-10-09/tests/test_acceptance.py\", line 76, in check_batch\n    self.assertEqual(audited, rejected, \"拒绝审计必须包含每条完整原行\")\nAssertionError: Lists differ: [] != [{'invoice_id': 'INV-000004', 'account': '[2305 chars]g.'}]\n\nSecond list contains 3 additional elements.\nFirst extra element 0:\n{'invoice_id': 'INV-000004', 'account': 'branch-03', 'currency': 'HKD', 'cents': '211', 'note': 'Submitted by branch kiosk; attachment reference pending. Submitted by branch kiosk; attachment reference pending. Submitted by branch kiosk; attachment reference pending. Submitted by branch kiosk; attachment reference pending. Submitted by branch kiosk; attachment reference pending. Submitted by branch kiosk; attachment reference pending. Submitted by branch kiosk; attachment reference pending. Submitted by branch kiosk; attachment reference pending. Submitted by branch kiosk; attachment reference pending. Submitted by branch kiosk; attachment reference pending. Submitted by branch kiosk; attachment reference pending. Submitted by branch kiosk; attachment reference pending.'}\n\nDiff is 2864 characters long. Set self.maxDiff to None to see it. : 拒绝审计必须包含每条完整原行\n\n----------------------------------------------------------------------\nRan 2 tests in 0.367s\n\nFAILED (failures=2)\n"
+    },
+    {
+      "check": "reset before changed fixture",
+      "command": [
+        "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+        "/private/tmp/debug-001-refactor-20261010.oHlrra/challenges/2026-10-09/scripts/run_export.py",
+        "reset"
+      ],
+      "exit_code": 0,
+      "expected_exit": 0,
+      "elapsed_seconds": 0.027,
+      "stdout": "已清空 var/runs/。源码修改、配置、输入和初始事故记录均已保留。\n",
+      "stderr": ""
+    },
+    {
+      "check": "acceptance rejects changed reference",
+      "command": [
+        "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ],
+      "exit_code": 1,
+      "expected_exit": 1,
+      "elapsed_seconds": 0.035,
+      "stdout": "",
+      "stderr": "ERROR\n\n======================================================================\nERROR: setUpClass (test_acceptance.SettlementAcceptance)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/private/tmp/debug-001-refactor-20261010.oHlrra/challenges/2026-10-09/tests/test_acceptance.py\", line 26, in setUpClass\n    raise AssertionError(\"参考材料已改变，请恢复后验收：\" + name)\nAssertionError: 参考材料已改变，请恢复后验收：config/settlement.json\n\n----------------------------------------------------------------------\nRan 0 tests in 0.000s\n\nFAILED (errors=1)\n"
+    },
+    {
+      "check": "final reset",
+      "command": [
+        "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+        "/private/tmp/debug-001-refactor-20261010.oHlrra/challenges/2026-10-09/scripts/run_export.py",
+        "reset"
+      ],
+      "exit_code": 0,
+      "expected_exit": 0,
+      "elapsed_seconds": 0.026,
+      "stdout": "已清空 var/runs/。源码修改、配置、输入和初始事故记录均已保留。\n",
+      "stderr": ""
+    },
+    {
+      "check": "final incident source",
+      "job_sha256": "6567d0193ad8dd10d204c62a94e049175781e5b27e6cf00c97cd25d92bee3d52",
+      "exporter_sha256": "1d35ae0bcff8566e5c50a76563c7827cc23879a4de4ea52ba9657e4c8f794342",
+      "empty_runs": true
+    },
+    {
+      "check": "portable runner invocation",
+      "cwd": "/private/tmp",
+      "case": "small",
+      "exit_code": 0,
+      "reset_exit_code": 0
+    },
+    {
+      "check": "syntax, local documentation links, code fences, fixture checksums and sidecar scan",
+      "result": "passed"
+    },
+    {
+      "check": "installed repository path verification",
+      "project": "/Users/a1234/WorkingSpace/debug-challenges/challenges/2026-10-09",
+      "reference_checksums": "passed",
+      "exit_code": 1,
+      "expected_exit": 1,
+      "small": {
+        "status": "finished",
+        "exit_code": 0,
+        "elapsed_seconds": 0.075
+      },
+      "daily": {
+        "status": "timeout",
+        "exit_code": 124,
+        "elapsed_seconds": 8.007
+      },
+      "stdout": "",
+      "stderr": "test_daily_batch (test_acceptance.SettlementAcceptance)\n日结批次符合完整业务契约。 ... FAIL\ntest_small_batch (test_acceptance.SettlementAcceptance)\n样例批次符合完整业务契约。 ... ok\n\n======================================================================\nFAIL: test_daily_batch (test_acceptance.SettlementAcceptance)\n日结批次符合完整业务契约。\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/Users/a1234/WorkingSpace/debug-challenges/challenges/2026-10-09/tests/test_acceptance.py\", line 86, in test_daily_batch\n    self.check_batch(\"daily\")\n  File \"/Users/a1234/WorkingSpace/debug-challenges/challenges/2026-10-09/tests/test_acceptance.py\", line 39, in check_batch\n    self.assertEqual(result.returncode, 0,\nAssertionError: 124 != 0 : 任务未正常完成，请查看 var/runs/daily/。\n任务已启动，PID=85207；运行记录：var/runs/daily\n任务在 8.0 秒内未结束，运行保护将停止本次任务。\n{\"status\": \"timeout\", \"exit_code\": 124, \"elapsed_seconds\": 8.007}\n\n\n----------------------------------------------------------------------\nRan 2 tests in 8.176s\n\nFAILED (failures=1)\n"
+    }
+  ]
+}

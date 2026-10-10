@@ -8,7 +8,7 @@ import sys
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Run one settlement export job")
+    parser = argparse.ArgumentParser(description="执行一次门店发票结算导出")
     parser.add_argument("--input", type=Path, required=True)
     parser.add_argument("--config", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
@@ -21,10 +21,15 @@ def main():
         with (args.output_dir / "job.stack").open("a") as trace:
             faulthandler.register(signal.SIGUSR1, file=trace, all_threads=True)
             event("job_started", input=str(args.input), output_dir=str(args.output_dir))
-            command = [sys.executable, "-u", str(Path(__file__).with_name("exporter.py")),
-                       "--input", str(args.input), "--config", str(args.config),
-                       "--output-dir", str(args.output_dir)]
-            child = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            command = [
+                sys.executable, "-u", "-m", "settlement_export.exporter",
+                "--input", str(args.input),
+                "--config", str(args.config),
+                "--output-dir", str(args.output_dir),
+            ]
+            child = subprocess.Popen(
+                command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
+            )
             event("exporter_started", pid=child.pid)
             result = child.stdout.read()
             diagnostics = child.stderr.read()
@@ -34,7 +39,9 @@ def main():
                 event("job_failed", returncode=child.returncode)
                 return child.returncode
             summary = json.loads(result)
-            (args.output_dir / "summary.json").write_text(json.dumps(summary, indent=2) + "\n", encoding="utf-8")
+            (args.output_dir / "summary.json").write_text(
+                json.dumps(summary, indent=2) + "\n", encoding="utf-8"
+            )
             event("job_completed", **summary)
             faulthandler.unregister(signal.SIGUSR1)
     return 0

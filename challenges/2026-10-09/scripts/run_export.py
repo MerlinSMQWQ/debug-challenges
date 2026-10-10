@@ -8,8 +8,12 @@ import subprocess
 import sys
 import time
 
-ROOT = Path(__file__).resolve().parent
-RUNTIME = ROOT / "runtime"
+ROOT = Path(__file__).resolve().parents[1]
+RUNTIME = ROOT / "var/runs"
+INPUTS = {
+    "small": "data/samples/small.csv",
+    "daily": "data/batches/daily.csv",
+}
 
 
 def terminate(process):
@@ -29,22 +33,33 @@ def run_case(name, timeout):
     output.mkdir(parents=True, exist_ok=True)
     active = RUNTIME / "active.json"
     if active.exists():
-        raise SystemExit("Another run is active or left active.json. Finish that run, then use reset.")
+        raise SystemExit(
+            "发现 var/runs/active.json。先在原终端结束任务，再执行 reset；"
+            "若上次运行异常退出，也请先确认该文件中的 PID 已退出。"
+        )
     if (output / "observation.json").exists():
-        raise SystemExit("This case has run already. Preserve evidence if needed, then use reset.")
-    command = [sys.executable, str(ROOT / "job.py"), "--input", str(ROOT / "data" / (name + ".csv")),
-               "--config", str(ROOT / "config.json"), "--output-dir", str(output)]
+        raise SystemExit("本批次已有运行记录。请先保存证据，再执行 reset 后重跑。")
+    command = [
+        sys.executable, "-m", "settlement_export.job",
+        "--input", INPUTS[name],
+        "--config", "config/settlement.json",
+        "--output-dir", str(output.relative_to(ROOT)),
+    ]
     started = time.monotonic()
     with (output / "launcher.log").open("w") as log:
-        process = subprocess.Popen(command, stdout=log, stderr=log, start_new_session=True)
+        process = subprocess.Popen(
+            command, cwd=ROOT, stdout=log, stderr=log, start_new_session=True
+        )
         active.write_text(json.dumps({"pid": process.pid, "case": name}), encoding="utf-8")
-        print("Started job pid=%d; outputs: %s" % (process.pid, output), flush=True)
+        print("任务已启动，PID=%d；运行记录：%s" % (
+            process.pid, output.relative_to(ROOT)
+        ), flush=True)
         status = "finished"
         try:
             code = process.wait(timeout=timeout if timeout > 0 else None)
         except subprocess.TimeoutExpired:
             status, code = "timeout", 124
-            print("Watchdog: run did not finish within %.1f seconds; stopping this run." % timeout, flush=True)
+            print("任务在 %.1f 秒内未结束，运行保护将停止本次任务。" % timeout, flush=True)
         except KeyboardInterrupt:
             status, code = "interrupted", 130
         finally:
@@ -65,26 +80,27 @@ def reset():
         except ProcessLookupError:
             pass
         else:
-            raise SystemExit("Process %s is still alive. Finish that run in its terminal before reset." % pid)
+            raise SystemExit("任务 PID=%s 仍在运行。请先在原终端按 Ctrl-C 结束它，再执行 reset。" % pid)
     if RUNTIME.exists():
         shutil.rmtree(RUNTIME)
-    RUNTIME.mkdir()
-    print("Runtime reset. Source, config, data and initial evidence preserved.")
+    RUNTIME.mkdir(parents=True)
+    print("已清空 var/runs/。源码修改、配置、输入和初始事故记录均已保留。")
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Local incident lifecycle; no contest timer")
+    parser = argparse.ArgumentParser(description="运行结算导出、保存记录或清理运行产物")
     commands = parser.add_subparsers(dest="command", required=True)
-    commands.add_parser("reset")
-    run = commands.add_parser("run")
+    commands.add_parser("reset", help="清空全部运行产物；保留源码修改")
+    run = commands.add_parser("run", help="运行一个参考批次")
     run.add_argument("case", choices=("small", "daily"))
-    run.add_argument("--timeout", type=float, default=8.0, help="Run watchdog in seconds; 0 waits until Ctrl-C")
+    run.add_argument("--timeout", type=float, default=8.0,
+                     help="运行保护时限（秒），默认 8；0 表示等待到手动 Ctrl-C")
     args = parser.parse_args()
     if args.command == "reset":
         reset()
         return 0
     if args.timeout < 0:
-        parser.error("--timeout must be nonnegative")
+        parser.error("--timeout 不能小于 0")
     return run_case(args.case, args.timeout)
 
 

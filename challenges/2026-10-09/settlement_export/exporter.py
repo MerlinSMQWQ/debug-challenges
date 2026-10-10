@@ -8,7 +8,7 @@ import sys
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Export invoices for settlement")
+    parser = argparse.ArgumentParser(description="将发票转换为结算记录")
     parser.add_argument("--input", type=Path, required=True)
     parser.add_argument("--config", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, required=True)
@@ -28,12 +28,25 @@ def main():
                     total += 1
                     if row["currency"] not in amounts:
                         rejected += 1
-                        print(json.dumps({"event": "rejected", "reason": "unsupported_currency", "row": row}), file=sys.stderr, flush=True)
+                        print(
+                            json.dumps({
+                                "event": "rejected",
+                                "reason": "unsupported_currency",
+                                "row": row,
+                            }),
+                            file=sys.stderr,
+                            flush=True,
+                        )
                         continue
                     writer.writerow(row)
                     accepted += 1
                     amounts[row["currency"]] += int(row["cents"])
-        print(json.dumps({"input_count": total, "exported_count": accepted, "rejected_count": rejected, "totals_cents": amounts}), flush=True)
+        print(json.dumps({
+            "input_count": total,
+            "exported_count": accepted,
+            "rejected_count": rejected,
+            "totals_cents": amounts,
+        }), flush=True)
         faulthandler.unregister(signal.SIGUSR1)
 
 

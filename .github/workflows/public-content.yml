@@ -13,6 +13,8 @@ on:
       - "tools/build_challenge_packages.mjs"
       - "tools/verify_challenge_packages.py"
       - ".github/workflows/public-content.yml"
+      - ".github/workflows/official-001-container.yml"
+      - ".github/workflows/challenge-001-container.yml"
   pull_request:
     paths:
       - "README.md"
@@ -24,6 +26,8 @@ on:
       - "tools/build_challenge_packages.mjs"
       - "tools/verify_challenge_packages.py"
       - ".github/workflows/public-content.yml"
+      - ".github/workflows/official-001-container.yml"
+      - ".github/workflows/challenge-001-container.yml"
 
 permissions:
   contents: read

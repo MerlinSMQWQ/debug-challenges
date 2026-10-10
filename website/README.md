@@ -36,7 +36,7 @@
 ```sh
 python3 tools/backup_project.py --destination ../debug-backups
 python3 -m unittest discover -s tools -p 'test_public_content.py' -v
-node --test website/tests/content-sync.test.mjs
+node --test website/tests/*.test.mjs
 node --check website/public/app.js
 python3 tools/build_public_content.py --output dist/public-content --ref main
 ```

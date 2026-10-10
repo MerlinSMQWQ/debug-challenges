@@ -2,7 +2,7 @@
 
 网站 https://debug.yuroteam.cn/ 已有浏览器读取 GitHub 的机制。推荐继续把 **`main` 作为公开内容发布分支**：每次访问／刷新网站，从仓库读目录与题目。Mac 不需要常驻，也不需要服务器拉取仓库、Webhook、定时任务、SSH Actions 密钥或新系统服务。助手云端只需已有 Git、Python 和 GitHub 连接，就能编辑、备份、提交候选题，并由 Actions 验证容器。
 
-制作验证与备份的统一约定在根 [AGENTS.md](../AGENTS.md)。本目录是现有云服务器网站的前端覆盖补丁，不是新网站、全站源码或生产自动部署配置。
+制作验证与备份的统一约定在根 [AGENTS.md](../AGENTS.md)。本目录保存现有云服务器网站的公开前端覆盖补丁和两份 Next 启动器源码；不是全站源码或生产自动部署配置。
 
 ## 已检查的当前机制
 
@@ -27,7 +27,19 @@
 
 阅读导航只显示“赛题入口、赛前知识、运行指南、比赛规则、事故说明、验证记录”等短标签，保留原文档路由和选中态；知识正文不变。现有桌面六列与移动两列布局继续使用。
 
-`node tools/build_challenge_packages.mjs --output <空目录>` 使用与浏览器相同的白名单和 ZIP 写入器构建两题独立包。`python3 tools/verify_challenge_packages.py --directory <目录>` 检查 CRC、文件边界、源文件逐字节一致、Python 语法、固定输入校验值和解压后的 `--help`。两项容器 Actions 在精确提交的解压包中构建和验证；不使用本地 Docker。公开内容 Actions 另保存 ZIP artifact，网站按钮不依赖 artifact 的访问权限或保留期限。部署仍只需既有四个公开前端文件。
+`node tools/build_challenge_packages.mjs --output <空目录>` 使用与浏览器相同的白名单和 ZIP 写入器构建两题独立包。`python3 tools/verify_challenge_packages.py --directory <目录>` 检查 CRC、文件边界、源文件逐字节一致、Python 语法、固定输入校验值和解压后的 `--help`。两项容器 Actions 在精确提交的解压包中构建和验证；不使用本地 Docker。公开内容 Actions 另保存 ZIP artifact，网站按钮不依赖 artifact 的访问权限或保留期限。
+
+## 前端资源版本与旧缓存
+
+源站 `/app.js` 返回 `max-age=0`，但 2026-10-10 公网返回 `max-age=14400`。原 Next 页面加载固定 `/app.js`，已有浏览器可继续执行旧缓存；这项证据说明发布风险，不代表已经读取用户实际浏览器缓存。修复由用户明确授权，采用应用内资源版本，不改 CDN、认证、网络或系统服务配置。
+
+`next/site-client.tsx` 和 `next/release-loader.mjs` 替换既有 Next 启动器。普通页面刷新时，以 `cache: no-store` 和每次不同的 `boot` 参数读取根 `snapshot.json`，验证完整提交 SHA，再加载 `/releases/SHA/app.js`。脚本从自身目录读取 `content-source.mjs`、备用 `snapshot.json`、`handbook.md`，并检查快照 SHA；不会把根目录其他发布的文件混进当前启动。根快照也是现有内容备用文件，无需新增版本接口或凭证。读不到有效发布时显示错误，不静默执行未固定版本的脚本。
+
+`tools/prepare_frontend_release.py` 从四文件 artifact 生成带哈希清单的 `frontend-release-SHA` artifact：根兼容文件四份、不可变目录四份、Next 启动器源码两份。其他文件、维护者指令文件和私有文档被拒绝。部署时先验证并完整放入新的不可变目录；同 SHA 目录若已存在，只能逐字节一致地复用，不能覆盖。更新根兼容文件时最后原子替换 `snapshot.json`，在这一点激活发布。保留旧发布，不清用户缓存，也不修改 Cookie 或登录会话。
+
+首次安装启动器需要在现有 Next 项目暂存目录重建，将新 HTML 和带哈希的启动器一起上线。后续公开前端更新复用两份启动器和新的四文件 artifact，无需为版本号重写启动器；新增 public 目录仍需按实际 Next 服务行为受控重启。普通题目内容 push 到 main 继续由浏览器读取，不触发网站重建。旧标签页已经执行的脚本不会被强制打断；用户普通刷新或重新打开页面后切换版本。
+
+当前 HTML 的 Cloudflare 响应为 DYNAMIC；Next 自身使用预渲染壳，CSS、页面启动器使用带哈希路径和 immutable 缓存。首次重建必须确认普通 HTML 已引用新启动器，而非只给首页加 query。回退时恢复旧根快照及四文件；若本次改变了 Next 构建，还需恢复原源码与构建并重启既有服务。不可变目录不删除、不覆盖；已打开页面继续使用其完整旧发布，新的启动选择回退后的发布。
 
 ## 本地轻量检查
 
@@ -50,7 +62,7 @@ python3 tools/build_public_content.py --output dist/public-content --ref main
 1. **推送候选范围。** 先审阅本次提交和它的父提交，再明确授权推送候选分支。候选分支 `draft/official-001-ci` 从 `25c1b24` 建立，仅提交本次 33 个文件的准确范围；选题参考目录内容单独纳入，未继承 `35c9fda`、`f679bba` 两项积压提交。旧题运行配置和操作材料保持远端基线，原 checkout 的用户映射修复仍保留在原本地提交中。推送 `draft/**` 只跑验证，不改变网站读取的 main。
 2. **取对应 Actions 结果。** 检查 `Official 001 container` 与 `Validate public content` 都属于待发布的确切 SHA；若 CI 失败，修复后重新验证新 SHA。新题未通过这一关时保持待发布。
 3. **发布到 main。** 用户授权把审核且验证通过的范围发布到 main 后，网站访问／刷新时可读到新题；现有前端已支持五列目录，因此这一步本身不依赖前端补丁上线。GitHub 或访问者网络可能导致延迟／失败，页面会显示备用状态。已打开页面需刷新，不主动打断填写中的表单。
-4. **一次性上线四个前端文件。** 要获得固定 SHA 读取、手册同步和新的备用材料，需要另外授权部署本补丁。使用获批 main SHA 的 Actions artifact；先备份服务器现有四个公开文件及应用版本，核对压缩包可读和哈希，不导出数据库或机密配置。只更新现有应用 `public/` 内这四个文件；新静态路径需要受控重启既有 `debug-challenges.service`，可能造成短暂访问中断。Next.js 生产服务启动时枚举 public 文件，不能假定新增模块无需重启就会被识别。
+4. **上线资源版本发布包。** 使用获批 main SHA 的 Actions artifact；先备份服务器公开文件、启动器源码、配置和现有 Next 构建，逐文件核验，不导出数据库或凭证。按上节发布顺序安装四个公开文件的不可变副本和根兼容文件，首次安装额外更新两份启动器源码并重建。受控重启既有 `debug-challenges.service` 可能造成短暂访问中断，不改变服务配置或后台业务代码。
 5. **验收与回退。** 检查首页正式 #001、测试 #000、两个日期链接、手册、断网备用提示和原登录入口。只读查看已有成绩；不运行会创建测试账户或答卷的生产 smoke 测试。失败时恢复备份的公开文件并重启原服务。不得覆盖 `.env`、`data/`、SQLite、APP_ORIGIN、登录配置或 Cloudflare 隧道；无数据库迁移，不改接评分队列。
 
 后续普通题目与手册更新 push 到 main，即可沿已上线机制读取；备用 artifact 自动生成，但服务器上的备用文件不会被自动替换。需要更新离线备用包时，另行授权应用该 SHA 的公开 artifact。自动替换服务器备用包或全站自动部署是后续范围，不能把本次 CI 构建称为生产自动部署。

@@ -12,6 +12,9 @@ on:
       - "tools/test_public_content.py"
       - "tools/build_challenge_packages.mjs"
       - "tools/verify_challenge_packages.py"
+      - "tools/prepare_frontend_release.py"
+      - "tools/test_frontend_release.py"
+      - "tools/check_next_bootstrap.mjs"
       - ".github/workflows/public-content.yml"
       - ".github/workflows/official-001-container.yml"
       - ".github/workflows/challenge-001-container.yml"
@@ -25,6 +28,9 @@ on:
       - "tools/test_public_content.py"
       - "tools/build_challenge_packages.mjs"
       - "tools/verify_challenge_packages.py"
+      - "tools/prepare_frontend_release.py"
+      - "tools/test_frontend_release.py"
+      - "tools/check_next_bootstrap.mjs"
       - ".github/workflows/public-content.yml"
       - ".github/workflows/official-001-container.yml"
       - ".github/workflows/challenge-001-container.yml"
@@ -33,6 +39,15 @@ permissions:
   contents: read
 
 jobs:
+  next-bootstrap:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - name: Compile the exact Next bootstrap without backend or database
+        run: node tools/check_next_bootstrap.mjs
   public-content:
     runs-on: ubuntu-latest
     steps:
@@ -40,6 +55,7 @@ jobs:
       - name: Verify public boundaries and source loading
         run: |
           python3 -m unittest discover -s tools -p 'test_public_content.py' -v
+          python3 -m unittest discover -s tools -p 'test_frontend_release.py' -v
           node --test website/tests/*.test.mjs
           node --check website/public/app.js
       - name: Create allowlisted public snapshot and frontend overlay
@@ -48,6 +64,7 @@ jobs:
         run: |
           python3 tools/build_public_content.py --output dist/public-content --ref "$CONTENT_REVISION"
           cp website/public/app.js website/public/content-source.mjs dist/public-content/
+          python3 tools/prepare_frontend_release.py --artifact dist/public-content --output dist/frontend-release --ref "$CONTENT_REVISION"
       - name: Verify standalone public challenge ZIPs
         run: |
           node tools/build_challenge_packages.mjs --output dist/challenge-packages
@@ -57,6 +74,12 @@ jobs:
         with:
           name: public-content-${{ github.sha }}
           path: dist/public-content/
+          retention-days: 14
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v7
+        with:
+          name: frontend-release-${{ github.sha }}
+          path: dist/frontend-release/
           retention-days: 14
           if-no-files-found: error
       - uses: actions/upload-artifact@v7

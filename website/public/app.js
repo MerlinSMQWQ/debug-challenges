@@ -3,6 +3,11 @@ const REPO = 'MerlinSMQWQ/debug-challenges';
 const REPO_URL = `https://github.com/${REPO}`;
 const RAW_URL = `https://raw.githubusercontent.com/${REPO}`;
 const main = document.getElementById('main');
+// Capture the classic script's URL before asynchronous initialization. All fallback
+// assets and the module must come from this same immutable release directory.
+const assetBase = new URL('.', document.currentScript?.src || new URL('/app.js', location.href));
+const releaseCommit = assetBase.pathname.match(/^\/releases\/([a-f0-9]{40})\/$/)?.[1];
+const publicAsset = filename => new URL(filename, assetBase).href;
 let currentUser, mePromise;
 let snapshot, contentSource, episodes = [], source = 'checking', ref = 'main', routeVersion = 0, toastTimer;
 const documents = new Map();
@@ -188,7 +193,7 @@ async function renderHandbook(version) {
   try {
     let handbook;
     try { handbook = await repositoryDocument('Debug 挑战赛手册.md'); }
-    catch { handbook = { text: await readText('/handbook.md'), saved: true }; }
+    catch { handbook = { text: await readText(publicAsset('handbook.md')), saved: true }; }
     const text = handbook.text;
     if (version !== routeVersion) return;
     const parsed = renderMarkdown(text, 'Debug 挑战赛手册.md');
@@ -303,8 +308,9 @@ window.addEventListener('hashchange', () => { window.scrollTo(0, 0); route(); })
 
 async function init() {
   try {
-    contentSource = await import('/content-source.mjs');
-    snapshot = JSON.parse(await readText('snapshot.json'));
+    contentSource = await import(publicAsset('content-source.mjs'));
+    snapshot = JSON.parse(await readText(publicAsset('snapshot.json')));
+    if (releaseCommit && snapshot.commit !== releaseCommit) throw new Error('mixed release');
     episodes = snapshot.episodes;
     route();
   } catch {

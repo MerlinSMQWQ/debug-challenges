@@ -34,11 +34,12 @@ test('API failure or invalid revision leaves caller able to select a visible sna
   assert.equal(fallback.saved, true); assert.equal(fallback.text, 'saved');
 });
 test('allowlist blocks answers, credentials and traversal including in saved documents', () => {
-  for (const path of ['../organizer/GROUND_TRUTH.md', 'organizer/GROUND_TRUTH.md', '.env', 'docs/../../x.md', 'data/accounts.json']) {
+  for (const path of ['../organizer/GROUND_TRUTH.md', 'organizer/GROUND_TRUTH.md', '.env', 'docs/../../x.md', 'data/accounts.json', 'docs/agents.md', 'docs/skill.md']) {
     assert.equal(publicDocumentPath(path), false);
     assert.throws(() => savedDocument({documents:{[path]:'private'}}, path));
   }
   assert.equal(publicDocumentPath('docs/pre_read.md'), true);
+  assert.throws(() => savedDocument({documents:{'challenges/2026-10-10/docs/agents.md':'private'}}, 'challenges/2026-10-10/docs/agents.md'));
 });
 test('malformed or duplicate identities cannot silently replace the directory', () => {
   const row = '| #001 | [New](challenges/2026-10-10/README.md) | Python | Easy | 20 分钟 |';

@@ -10,6 +10,8 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def read_public(root, relative):
     path = root / relative
+    if re.fullmatch(r'(agents(?:\..+)?|claude|gemini|codex|skill|copilot(?:-instructions)?|.*\.instructions)\.md',path.name,re.I):
+        raise ValueError("Maintainer instructions are not participant documents")
     if path.is_symlink() or any((root / parent).is_symlink() for parent in Path(relative).parents):
         raise ValueError("Symlinks are not public source files")
     if not path.is_file() or root.resolve() not in path.resolve().parents:

@@ -10,6 +10,8 @@ on:
       - "website/**"
       - "tools/build_public_content.py"
       - "tools/test_public_content.py"
+      - "tools/build_challenge_packages.mjs"
+      - "tools/verify_challenge_packages.py"
       - ".github/workflows/public-content.yml"
   pull_request:
     paths:
@@ -19,6 +21,8 @@ on:
       - "website/**"
       - "tools/build_public_content.py"
       - "tools/test_public_content.py"
+      - "tools/build_challenge_packages.mjs"
+      - "tools/verify_challenge_packages.py"
       - ".github/workflows/public-content.yml"
 
 permissions:
@@ -32,7 +36,7 @@ jobs:
       - name: Verify public boundaries and source loading
         run: |
           python3 -m unittest discover -s tools -p 'test_public_content.py' -v
-          node --test website/tests/content-sync.test.mjs
+          node --test website/tests/*.test.mjs
           node --check website/public/app.js
       - name: Create allowlisted public snapshot and frontend overlay
         env:
@@ -40,10 +44,20 @@ jobs:
         run: |
           python3 tools/build_public_content.py --output dist/public-content --ref "$CONTENT_REVISION"
           cp website/public/app.js website/public/content-source.mjs dist/public-content/
+      - name: Verify standalone public challenge ZIPs
+        run: |
+          node tools/build_challenge_packages.mjs --output dist/challenge-packages
+          python3 tools/verify_challenge_packages.py --directory dist/challenge-packages
       # Build output only. No SSH, credentials, server write, database or deployment.
       - uses: actions/upload-artifact@v7
         with:
           name: public-content-${{ github.sha }}
           path: dist/public-content/
+          retention-days: 14
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v7
+        with:
+          name: challenge-packages-${{ github.sha }}
+          path: dist/challenge-packages/*.zip
           retention-days: 14
           if-no-files-found: error

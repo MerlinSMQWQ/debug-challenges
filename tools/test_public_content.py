@@ -52,6 +52,14 @@ class PublicContent(unittest.TestCase):
                 (root / 'README.md').write_text(modified)
                 with self.assertRaises(ValueError): build(root)
 
+    def test_maintainer_instructions_cannot_be_linked_into_snapshot(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory); challenge = self.fixture(root)
+            (challenge/'docs').mkdir()
+            (challenge/'docs/agents.md').write_text('NEVER_PUBLIC_SECRET')
+            (challenge/'README.md').write_text('[维护者资料](docs/agents.md)')
+            with self.assertRaises(ValueError): build(root)
+
     def test_release_ref_and_determinism(self):
         revision = 'a' * 40
         self.assertEqual(build(revision=revision), build(revision=revision))

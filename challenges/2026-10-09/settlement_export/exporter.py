@@ -1,10 +1,10 @@
 import argparse
 import csv
-import faulthandler
 import json
 from pathlib import Path
-import signal
 import sys
+
+from settlement_export.diagnostics import stack_probe
 
 
 def main():
@@ -15,8 +15,7 @@ def main():
     args = parser.parse_args()
     config = json.loads(args.config.read_text(encoding="utf-8"))
     args.output_dir.mkdir(parents=True, exist_ok=True)
-    with (args.output_dir / "exporter.stack").open("a") as trace:
-        faulthandler.register(signal.SIGUSR1, file=trace, all_threads=True)
+    with stack_probe(args.output_dir, "exporter"):
         with args.input.open(newline="", encoding="utf-8") as source:
             reader = csv.DictReader(source)
             with (args.output_dir / "exported.csv").open("w", newline="", encoding="utf-8") as output:
@@ -47,7 +46,6 @@ def main():
             "rejected_count": rejected,
             "totals_cents": amounts,
         }), flush=True)
-        faulthandler.unregister(signal.SIGUSR1)
 
 
 if __name__ == "__main__":

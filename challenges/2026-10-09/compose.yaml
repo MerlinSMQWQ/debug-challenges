@@ -1,0 +1,11 @@
+services:
+  challenge:
+    build:
+      context: .
+    image: debug-challenge-001:local
+    init: true
+    environment:
+      PYTHONDONTWRITEBYTECODE: "1"
+    working_dir: /challenge
+    volumes:
+      - .:/challenge

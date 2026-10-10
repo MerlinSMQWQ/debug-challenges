@@ -1,10 +1,10 @@
 import argparse
-import faulthandler
 import json
 from pathlib import Path
-import signal
 import subprocess
 import sys
+
+from settlement_export.diagnostics import stack_probe
 
 
 def main():
@@ -18,8 +18,7 @@ def main():
         def event(name, **fields):
             print(json.dumps({"event": name, **fields}), file=log, flush=True)
 
-        with (args.output_dir / "job.stack").open("a") as trace:
-            faulthandler.register(signal.SIGUSR1, file=trace, all_threads=True)
+        with stack_probe(args.output_dir, "job"):
             event("job_started", input=str(args.input), output_dir=str(args.output_dir))
             command = [
                 sys.executable, "-u", "-m", "settlement_export.exporter",
@@ -43,7 +42,6 @@ def main():
                 json.dumps(summary, indent=2) + "\n", encoding="utf-8"
             )
             event("job_completed", **summary)
-            faulthandler.unregister(signal.SIGUSR1)
     return 0
 
 

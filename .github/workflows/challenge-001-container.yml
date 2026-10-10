@@ -1,0 +1,28 @@
+name: Challenge 001 container
+
+on:
+  push:
+    paths:
+      - ".github/workflows/challenge-001-container.yml"
+      - "challenges/2026-10-09/**"
+  pull_request:
+    paths:
+      - ".github/workflows/challenge-001-container.yml"
+      - "challenges/2026-10-09/**"
+
+jobs:
+  container:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: challenges/2026-10-09
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the Linux challenge image
+        run: docker compose build challenge
+      - name: Validate reproduction, stack snapshots and cleanup
+        run: >-
+          docker compose run --rm
+          --user "$(id -u):$(id -g)"
+          --entrypoint python challenge
+          -m unittest tests.test_environment -v

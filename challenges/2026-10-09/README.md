@@ -23,18 +23,18 @@
 
 ```sh
 cd challenges/2026-10-09
-python3 --version
-python3 scripts/run_export.py --help
+docker compose build
+docker compose run --rm challenge --help
 ```
 
-需要 macOS、Python 3.9 或更新版本，无需安装依赖或安装本项目。已实测的具体版本和验证范围见 [验证记录](docs/validation.md)。
+参赛环境是题目提供的 Linux 容器。Windows 和 macOS 安装 Docker Desktop，Linux 安装 Docker Engine 与 Compose 插件即可；不需要宿主机 Python、云服务器或额外依赖。已实测的镜像和范围见[验证记录](docs/validation.md)。
 
 开始调查后，用运行脚本执行样例和日结批次：
 
 ```sh
-python3 scripts/run_export.py reset
-python3 scripts/run_export.py run small
-python3 scripts/run_export.py run daily
+docker compose run --rm challenge reset
+docker compose run --rm challenge run small
+docker compose run --rm challenge run daily
 ```
 
 输出分别写入 `var/runs/small/` 和 `var/runs/daily/`。脚本默认在 8 秒后停止尚未结束的任务，超时退出码为 `124`；这是运行保护时限。比赛的 45 分钟需要另外记录。
@@ -42,8 +42,9 @@ python3 scripts/run_export.py run daily
 修复后的业务验收使用 Python 自带的测试工具：
 
 ```sh
-python3 scripts/run_export.py reset
-python3 -m unittest discover -s tests -v
+docker compose run --rm challenge reset
+docker compose run --rm --entrypoint python challenge \
+  -m unittest discover -s tests -p "test_acceptance.py" -v
 ```
 
 验收检查完整导出记录、计数、金额、拒绝审计和任务完成记录。事故版本的验收失败是待调查的现场；修复后两组测试都应通过。每次清理前请先保存需要保留的运行记录。
@@ -61,11 +62,12 @@ python3 -m unittest discover -s tests -v
 ├── tests/                   # 外部行为验收与参考材料校验值
 ├── docs/                    # 学习、运行、事故与比赛说明
 ├── evidence/initial/        # 一次真实事故运行的初始记录
-├── pyproject.toml           # Python 版本与依赖声明
+├── Dockerfile、compose.yaml # 统一的 Linux 参赛环境
+├── pyproject.toml           # 容器内 Python 版本与依赖声明
 └── var/runs/                # 运行时生成的文件，不纳入版本控制
 ```
 
-`settlement_export/job.py` 是任务入口，调用 `settlement_export/exporter.py` 进行转换；输入、配置和输出目录由命令行指定。运行脚本负责启动和回收进程，验收测试独立计算期望结果。完整运行方式和输出文件的含义见运行指南。
+`settlement_export/job.py` 是任务入口，调用 `settlement_export/exporter.py` 进行转换；`settlement_export/diagnostics.py` 提供容器间可请求的调用栈快照。Compose 会把当前项目挂载进容器，所以参赛者修改源码后无需重新构建镜像。运行脚本负责启动和回收进程，验收测试独立计算期望结果。
 
 可以在 `notes/` 保存自己的调查记录、备份和实验副本，该目录不会进入版本控制。`reset` 只清空 `var/runs/`，不会恢复你的源码修改。
 

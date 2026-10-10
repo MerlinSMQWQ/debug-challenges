@@ -14,11 +14,11 @@
 
 采用手册 **C 档：系统调试**，本题开放的具体工具如下：
 
-- shell、Python 标准库、文本编辑器；阅读或修改业务源码，运行程序，自写最小实验。
-- `cat`、`tail`、`rg` / `grep`、`diff`、`ls`、`find`、`wc`、`ps`、`top`、`lsof`。
-- 向本题业务 PID 发送 `SIGUSR1` 获取栈；Python 自带调试器 `pdb`。
+- Docker Desktop 或 Docker Engine、宿主机文本编辑器；阅读或修改题目源码，运行程序，自写最小实验。
+- 题目容器内的 shell、Python 标准库、`cat`、`tail`、`rg`、`grep`、`diff`、`ls`、`find`、`wc`、`ps`、`top` 和 `lsof`。
+- 使用 `docker compose run --rm challenge stack ...` 获取业务进程的 Python 栈；可以在容器内使用 Python 自带调试器 `pdb`。
 
-业务源码、配置、输入、运行脚本、验收标准和真实运行产物全部开放，不需要申请解锁证据。实验限于本项目和自己的题内副本；不得操作其他项目或其他用户的进程。本题不开放 `lldb`、`gdb`、`strace`、`dtrace`、`perf`、`tcpdump`，无需 sudo。
+业务源码、配置、输入、Docker 配置、运行脚本、验收标准和真实运行产物全部开放，不需要申请解锁证据。实验限于本项目及题目容器；不得操作其他项目、容器或用户进程。本题不开放 `lldb`、`gdb`、`strace`、`dtrace`、`perf`、`tcpdump`，不需要云服务器、容器内 root 或宿主机管理员权限。
 
 允许查阅 `man`、`--help`、Python 官方文档和 POSIX 的一般规则与接口语义。普通挑战中，禁止搜索当前故障的现成答案，或让另一个 AI 分析本题源码、解释异常、猜根因、推荐调查路径。赛前学习可以用 AI 理解一般知识；AI 辅助挑战须另行明确标记、独立记录成绩。
 

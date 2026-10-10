@@ -16,13 +16,13 @@
 
 ## 运行第一道挑战
 
-本题使用 macOS、Python 3.9 或更新版本，只需标准库，无需安装依赖。具体实测组合和平台范围见[验证记录](challenges/2026-10-09/docs/validation.md)。
+本题提供完整 Docker 配置。Windows 和 macOS 参赛者使用 Docker Desktop，Linux 参赛者使用 Docker Engine；所有人运行同一个 Linux 赛题镜像，不需要云服务器或宿主机 Python。具体范围见[验证记录](challenges/2026-10-09/docs/validation.md)。
 
 ```sh
 git clone https://github.com/MerlinSMQWQ/debug-challenges.git
 cd debug-challenges/challenges/2026-10-09
-python3 --version
-python3 scripts/run_export.py --help
+docker compose build
+docker compose run --rm challenge --help
 ```
 
 接下来按[项目 README](challenges/2026-10-09/README.md)完成阅读和环境准备。比赛计时由参赛者明确开始后记录，运行工具不自动启动计时。

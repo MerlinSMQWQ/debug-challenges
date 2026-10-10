@@ -18,7 +18,7 @@ diagnostics = child.stderr.read()
 child.wait()
 ```
 
-2026-10-10 的重构只调整项目组织、模块启动方式、文档及验收入口，保留这段故障逻辑和相同业务输入。运行脚本在任意当前目录下都以项目根目录启动业务模块，传入项目相对路径；清理时创建必要的运行目录。
+2026-10-10 的目录重构保留这段故障逻辑和相同业务输入。随后的环境修复把 Docker 中的 Linux 固定为比赛环境：Windows 和 macOS 只作为 Docker Desktop 宿主机。栈快照从宿主机相关的 `SIGUSR1` 改成标准库诊断线程监听共享请求文件，两个终端可以通过 Compose 使用同一入口。该改动服务于环境与观察，不改变业务输出收集顺序或故障因果链。
 
 ## 触发条件与因果链
 
@@ -37,7 +37,7 @@ small 的诊断量没有填满管道，故它能够结束；这不能证明输�
 
 合理的初始假设包括输入处理、计算量、磁盘写入、结果解析和结束流程异常。先重现 small/daily 的差异，再用实际进程、输出和栈区分这些解释。
 
-持续现场中，对两个真实 PID 请求 `SIGUSR1`：父进程栈落在 stdout 读取处；转换进程栈落在向 stderr 打印审计处。将这些位置与通道所有者、容量和 EOF 条件连接起来，才能解释等待关系。低 CPU 本身不足以确诊。
+持续现场中，分别执行 `docker compose run --rm challenge stack daily job` 和对应的 `exporter` 命令：父进程栈落在 stdout 读取处；转换进程栈落在向 stderr 打印审计的位置。请求容器通过共享运行目录与任务容器通信，不依赖宿主机 PID 或信号。将这些位置与通道所有者、容量和 EOF 条件连接起来，才能解释等待关系。低 CPU 本身不足以确诊。
 
 可以保持输入不变，直接运行转换程序并把 stderr 归档到普通文件，或尝试同时消费两条流。对照能说明输出连接方式影响完成状态；还需结合代码、真实栈以及保留完整审计的修复验收形成证据链。参赛者采用其他成立的路径同样有效。
 
@@ -56,7 +56,7 @@ small 的诊断量没有填满管道，故它能够结束；这不能证明输�
 
 删除审计、改变支持币种或减少输入可能改变触发，却违反业务要求。合并两个流也会破坏 stdout 中独立汇总 JSON 的通道契约。超时与进程清理只能限制影响，不能代替根因修复。
 
-权威依据：[subprocess 输出收集](https://docs.python.org/3.9/library/subprocess.html#subprocess.Popen.communicate)、[文本流读取](https://docs.python.org/3.9/library/io.html#io.TextIOBase.read)、[POSIX read](https://pubs.opengroup.org/onlinepubs/9799919799/functions/read.html)、[POSIX write](https://pubs.opengroup.org/onlinepubs/9799919799/functions/write.html)。这些接口语义已于 2026-10-10 重新核对；官方规则与本机实测分别保留。
+权威依据：[subprocess 输出收集](https://docs.python.org/3.9/library/subprocess.html#subprocess.Popen.communicate)、[文本流读取](https://docs.python.org/3.9/library/io.html#io.TextIOBase.read)、[faulthandler 栈输出](https://docs.python.org/3.9/library/faulthandler.html#faulthandler.dump_traceback)、[POSIX read](https://pubs.opengroup.org/onlinepubs/9799919799/functions/read.html)、[POSIX write](https://pubs.opengroup.org/onlinepubs/9799919799/functions/write.html)。接口语义与实际环境验证分别保留。
 
 ## 提示与复盘
 
@@ -74,8 +74,8 @@ small 的诊断量没有填满管道，故它能够结束；这不能证明输�
 
 ## 验证与历史资料
 
-当前重构版本的原始验证记录见 [evidence/2026-10-10/validation.json](evidence/2026-10-10/validation.json)。记录包含实际命令、退出码、日志、进程观察、栈和结果摘要，属于出题验证，包含答案。
+当前 Docker 环境验证见 [evidence/2026-10-10/docker-validation.md](evidence/2026-10-10/docker-validation.md)。此前目录重构的原始验证记录保留在 [validation.json](evidence/2026-10-10/validation.json)，其中的平台和命令只对应 Docker 化之前的版本。
 
-已验证事故版本的小/大批次差异、标准验收入口、持续现场与栈、活动任务清理保护、Ctrl-C 回收、直接模块启动、正常基线，以及验收对审计缺失和参考材料篡改的拒绝。交付恢复为事故源码，运行目录清空。
+已验证事故版本的小/大批次差异、标准验收入口、容器间栈请求、活动任务清理保护、超时回收、源码挂载、正常基线，以及验收对审计缺失和参考材料篡改的拒绝。Linux 镜像是唯一比赛环境，仓库工作流持续构建并运行该镜像。交付恢复为事故源码，运行目录清空。
 
 原始 2026-10-09 故障真相和环境记录保存在 `archive/`，内容按原样保留。历史路径、源码行号和校验值仅对应当时版本；当前参赛者应使用项目 README 中的新入口。历史记录不应被改写成当前版本已通过的证明。

@@ -63,6 +63,6 @@ print("processed one record", file=sys.stderr)
 
 低 CPU、某个文件已出现、某条日志已经打印，都只说明一部分状态。建立解释时，要说清楚当前操作等待什么、继续执行的条件是什么、由谁改变这个条件，再用现场证据核对。
 
-本题提供了 Python 调用栈快照：给实际业务 PID 发送 `SIGUSR1` 后，程序会把当前栈写入独立文件并继续运行。工具用法见[运行指南](operations.md#观察正在运行的任务)；接口语义见 [faulthandler 官方文档](https://docs.python.org/3.9/library/faulthandler.html#faulthandler.register)。
+本题提供了容器间可请求的 Python 调用栈快照。运行工具写入一个快照请求，业务进程中的诊断线程收到后，将所有线程的当前栈追加到共享运行目录；主业务线程继续保持原来的运行状态。Windows、macOS 和 Linux 宿主机都使用同一条 Compose 命令，不要求参赛者直接操作进程信号。工具用法见[运行指南](operations.md#观察正在运行的任务)，底层栈输出使用 [faulthandler.dump_traceback](https://docs.python.org/3.9/library/faulthandler.html#faulthandler.dump_traceback)。
 
 读完后，确认自己能区分：启动与完成、文件存在与写入结束、刷新与接收、暂时无数据与 EOF，以及观察事实与故障假设。

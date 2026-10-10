@@ -1,0 +1,29 @@
+name: Official 001 container
+
+on:
+  push:
+    paths:
+      - ".github/workflows/official-001-container.yml"
+      - "challenges/2026-10-10/**"
+  pull_request:
+    paths:
+      - ".github/workflows/official-001-container.yml"
+      - "challenges/2026-10-10/**"
+
+permissions:
+  contents: read
+
+jobs:
+  container:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: challenges/2026-10-10
+    steps:
+      - uses: actions/checkout@v7
+      - name: Match the Linux checkout owner
+        run: printf 'CHALLENGE_UID=%s\nCHALLENGE_GID=%s\n' "$(id -u)" "$(id -g)" > .env
+      - name: Build the standard incident environment
+        run: docker compose build challenge
+      - name: Verify preview and repeatable incident
+        run: docker compose run --rm --entrypoint python challenge -m unittest tests.test_environment -v

@@ -1,0 +1,6 @@
+# New organizer material is private until a separately authorized post-race release.
+# Existing tracked historical organizer files are retained; ignore does not untrack them.
+/organizer/2026-10-10/
+/dist/
+**/__pycache__/
+**/.DS_Store

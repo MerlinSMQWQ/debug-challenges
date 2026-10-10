@@ -1,0 +1,16 @@
+packed S-1001
+packed S-1002
+packed S-1003
+ Container 2026-10-10-challenge-run-4e60845ed771 Creating
+ Container 2026-10-10-challenge-run-4e60845ed771 Created
+Traceback (most recent call last):
+  File "/challenge/shipping.py", line 64, in <module>
+    main()
+    ~~~~^^
+  File "/challenge/shipping.py", line 60, in main
+    export(batch, args.output)
+    ~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/challenge/shipping.py", line 40, in export
+    writer.writerow([order["order_id"], order["sku"], order["quantity"]])
+                     ~~~~~^^^^^^^^^^^^
+TypeError: 'NoneType' object is not subscriptable

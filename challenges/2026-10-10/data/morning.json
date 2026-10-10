@@ -1,0 +1,5 @@
+[
+  {"order_id": "S-1001", "sku": "NOTE-A5", "quantity": 2},
+  {"order_id": "S-1002", "sku": "PEN-BLUE", "quantity": 1},
+  {"order_id": "S-1003", "sku": "TAPE-20", "quantity": 4}
+]

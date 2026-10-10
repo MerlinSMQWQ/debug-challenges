@@ -1,0 +1,49 @@
+name: Validate public content
+
+on:
+  push:
+    branches: [main, "draft/**"]
+    paths:
+      - "README.md"
+      - "Debug 挑战赛手册.md"
+      - "challenges/**"
+      - "website/**"
+      - "tools/build_public_content.py"
+      - "tools/test_public_content.py"
+      - ".github/workflows/public-content.yml"
+  pull_request:
+    paths:
+      - "README.md"
+      - "Debug 挑战赛手册.md"
+      - "challenges/**"
+      - "website/**"
+      - "tools/build_public_content.py"
+      - "tools/test_public_content.py"
+      - ".github/workflows/public-content.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  public-content:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Verify public boundaries and source loading
+        run: |
+          python3 -m unittest discover -s tools -p 'test_public_content.py' -v
+          node --test website/tests/content-sync.test.mjs
+          node --check website/public/app.js
+      - name: Create allowlisted public snapshot and frontend overlay
+        env:
+          CONTENT_REVISION: ${{ github.sha }}
+        run: |
+          python3 tools/build_public_content.py --output dist/public-content --ref "$CONTENT_REVISION"
+          cp website/public/app.js website/public/content-source.mjs dist/public-content/
+      # Build output only. No SSH, credentials, server write, database or deployment.
+      - uses: actions/upload-artifact@v7
+        with:
+          name: public-content-${{ github.sha }}
+          path: dist/public-content/
+          retention-days: 14
+          if-no-files-found: error

@@ -1,0 +1,13 @@
+{
+  "source": "organizer reproduction; not participant evidence",
+  "container_runtime": [
+    "Linux-7.0.14-linuxkit-aarch64-with-glibc2.36",
+    "3.13.16"
+  ],
+  "preview_exit": 0,
+  "export_exit": 1,
+  "output_files": [
+    "manifest.csv.part"
+  ],
+  "input_sha256": "984a47e648610ef9317963a3688348e9e3dec65c55cd6ad5a8f666d04cc07cdb"
+}

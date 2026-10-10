@@ -1,0 +1,11 @@
+services:
+  challenge:
+    build: .
+    image: debug-shipping-001:local
+    init: true
+    user: "${CHALLENGE_UID:-1000}:${CHALLENGE_GID:-1000}"
+    working_dir: /challenge
+    environment:
+      PYTHONDONTWRITEBYTECODE: "1"
+    volumes:
+      - .:/challenge

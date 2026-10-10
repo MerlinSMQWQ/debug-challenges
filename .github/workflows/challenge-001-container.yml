@@ -17,7 +17,7 @@ jobs:
       run:
         working-directory: challenges/2026-10-09
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Build the Linux challenge image
         run: docker compose build challenge
       - name: Validate reproduction, stack snapshots and cleanup
